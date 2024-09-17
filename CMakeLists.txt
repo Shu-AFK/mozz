@@ -3,14 +3,17 @@ cmake_minimum_required(VERSION 3.12)
 project(mozz)
 
 add_library(mozz SHARED dllmain.cpp
-        include/process_doppeling.cpp
-        include/process_doppeling.h
         include/debug.h
         include/debug.cpp
         include/include.h
         include/include.cpp
         include/print.h
         include/print.cpp
+        include/injection/process_hallowing.h
+        include/injection/process_hallowing.cpp
+        include/injection/pe.h
+        include/injection/pe.cpp
+        include/injection/internal.h
 )
 
 set_target_properties(mozz PROPERTIES

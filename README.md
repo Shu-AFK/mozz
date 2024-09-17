@@ -1,11 +1,11 @@
 # MOZZ
 
-**MOZZ** is a DLL designed for shellcode injection and downloading using the Process Doppelgänging
-technique. It provides a stealthy way to inject and execute shellcode within a target process 
+**MOZZ** is a DLL designed for shellcode injection and downloading using **Process Hallowing**.
+It provides a stealthy way to inject and execute shellcode within a target process without storing the shellcode on disk
 while *hopefully* evading detection from conventional security solutions when finished.
 
 ## Features
-- **Process Doppelgänging**: Leverages Transactional NTFS (TxF) to inject shellcode into a process without writing to disk.
+- **Process Hollowing**: Creates a new process in a suspended state, replaces its memory with shellcode, and resumes execution to avoid detection.
 - **Flexible Payload Delivery**: Allows dynamic loading of shellcode from a remote source.
 - **Minimal Footprint**: Operates without leaving traces on the filesystem, enhancing stealth.
 

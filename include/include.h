@@ -4,6 +4,8 @@
 #include <windows.h>
 #include <wininet.h>
 #include <KtmW32.h>
+#include <Ntsecapi.h>
+#include <dbghelp.h>
 #include <thread>
 #include <string>
 #include <vector>
