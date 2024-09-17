@@ -19,7 +19,7 @@ bool InitializeNtQueryInformationProcess() {
     return true;
 }
 
-DWORD FindRemotePEB(HANDLE hProcess) {
+LPCVOID FindRemotePEB(HANDLE hProcess) {
     if (!ntQueryInformationProcess) {
         if (!InitializeNtQueryInformationProcess())
             return 0;
@@ -33,13 +33,13 @@ DWORD FindRemotePEB(HANDLE hProcess) {
 }
 
 PEB *ReadRemotePEB(HANDLE hProcess) {
-    DWORD dwPEBAddress = FindRemotePEB(hProcess);
+    LPCVOID dwPEBAddress = FindRemotePEB(hProcess);
     if (!dwPEBAddress) {
         return nullptr;
     }
 
     PEB *pPEB = new PEB();
-    if(!ReadProcessMemory(hProcess, (LPCVOID)dwPEBAddress, pPEB, sizeof(PEB), nullptr)) {
+    if(!ReadProcessMemory(hProcess, dwPEBAddress, pPEB, sizeof(PEB), nullptr)) {
         delete pPEB;
         return nullptr;
     }

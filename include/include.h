@@ -12,5 +12,6 @@
 #include <iostream>
 #include <io.h>
 #include <queue>
+#include <strsafe.h>
 
 #endif //MOZZ_INCLUDE_H

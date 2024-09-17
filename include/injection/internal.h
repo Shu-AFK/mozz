@@ -5,9 +5,9 @@
 
 struct PROCESS_BASIC_INFORMATION {
     PVOID Reserved1;
-    DWORD PebBaseAddress;
+    PVOID PebBaseAddress;
     PVOID Reserved2[2];
-    DWORD UniqueProcessId;
+    ULONG_PTR UniqueProcessId;
     PVOID Reserved3;
 };
 
