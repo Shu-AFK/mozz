@@ -9,6 +9,13 @@ enum PrintLevel {
     PRINT_INFO = 2,
 };
 
-void Print(const std::string &str, PrintLevel level);
+#ifdef DEBUG
+extern const std::vector<std::string> PrintSigns;
+
+#define PRINT(str, level) \
+    EnqueConsoleWrite(std::format("{} {}", PrintSigns[level], str))
+#else
+#define PRINT(str, level)
+#endif
 
 #endif //MOZZ_PRINT_H
