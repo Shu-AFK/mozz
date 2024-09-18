@@ -15,4 +15,10 @@
 #include <strsafe.h>
 #include <format>
 
+#ifdef DEBUG
+#include "debug.h"
+#endif
+
+#include "print.h"
+
 #endif //MOZZ_INCLUDE_H
