@@ -1,6 +1,6 @@
 # MOZZ
 
-**MOZZ** is a DLL designed for shellcode injection and downloading using **Process Hallowing**.
+**MOZZ** is a DLL designed for shellcode downloading and injection using **Process Hallowing**.
 It provides a stealthy way to inject and execute shellcode within a target process without storing the shellcode on disk
 while *hopefully* evading detection from conventional security solutions when finished.
 
