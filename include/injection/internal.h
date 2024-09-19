@@ -12,23 +12,23 @@ struct PROCESS_BASIC_INFORMATION {
 };
 
 typedef NTSTATUS (WINAPI* _NtUnmapViewOfSection)(
-HANDLE ProcessHandle,
-        PVOID BaseAddress
+    HANDLE ProcessHandle,
+    PVOID BaseAddress
 );
 
 typedef NTSTATUS (WINAPI* _NtQueryInformationProcess)(
-HANDLE ProcessHandle,
-        DWORD ProcessInformationClass,
-PVOID ProcessInformation,
-        DWORD ProcessInformationLength,
-PDWORD ReturnLength
+    HANDLE ProcessHandle,
+    DWORD ProcessInformationClass,
+    PVOID ProcessInformation,
+    DWORD ProcessInformationLength,
+    PDWORD ReturnLength
 );
 
 typedef NTSTATUS (WINAPI* _NtQuerySystemInformation)(
-DWORD SystemInformationClass,
-        PVOID SystemInformation,
-ULONG SystemInformationLength,
-        PULONG ReturnLength
+    DWORD SystemInformationClass,
+    PVOID SystemInformation,
+    ULONG SystemInformationLength,
+    PULONG ReturnLength
 );
 
 #endif //MOZZ_INTERNAL_H
